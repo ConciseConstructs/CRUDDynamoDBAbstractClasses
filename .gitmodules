@@ -1,0 +1,3 @@
+[submodule "lambdahandler"]
+	path = lambdahandler
+	url = https://github.com/ConciseConstructs/lambdahandler.git
