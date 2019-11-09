@@ -6,6 +6,7 @@ import { Context, Callback } from 'aws-lambda'
   export interface IRequest {
     accountId:string
     view?:any
+    lastEvaluatedKey?:any
   }
 
 
@@ -30,8 +31,9 @@ export abstract class ReadAllHandler extends LambdaHandler {
 
 
     protected performActions() {
-      if (this.request.view) this.makeProjectionSyntax()
-      else this.makeAllSyntax()
+      this.makeAllSyntax()
+      if (this.request.view) this.addProjectionSyntax()
+      if (this.request.lastEvaluatedKey) this.addLastEvaluatedKeySyntax()
       this.db.query(this.syntax).promise()
         .then(result => this.hasSucceeded(result))
         .catch(error => this.hasFailed(error))
@@ -56,13 +58,19 @@ export abstract class ReadAllHandler extends LambdaHandler {
 
 
 
-        private makeProjectionSyntax() {
-          if (this.request.view) this.request.view = JSON.parse(this.request.view)
-          this.makeAllSyntax()
+        private addProjectionSyntax() {
+          this.request.view = JSON.parse(this.request.view)
           this.syntax.ProjectionExpression = this.request.view.ProjectionExpression
           for (let [ placeholder, value ] of Object.entries(this.request.view.ExpressionAttributeNames) as any) {
             this.syntax.ExpressionAttributeNames[placeholder] = value
           }
+        }
+
+
+
+
+        private addLastEvaluatedKeySyntax() {
+          this.syntax.ExclusiveStartKey = JSON.parse(this.request.lastEvaluatedKey)
         }
 
 } // End Main Handler Function -------
