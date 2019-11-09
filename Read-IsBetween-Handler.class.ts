@@ -11,7 +11,7 @@ import { Context, Callback } from 'aws-lambda'
 }
 
 
-export abstract class HandlerObject extends LambdaHandler {
+export abstract class ReadIsBetweenHandler extends LambdaHandler {
     protected request:IRequest
     protected response:IResponse
 

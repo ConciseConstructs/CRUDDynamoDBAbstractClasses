@@ -9,7 +9,7 @@ import { Context, Callback } from 'aws-lambda'
   }
 
 
-export abstract class HandlerObject extends LambdaHandler {
+export abstract class ReadIdHandler extends LambdaHandler {
     protected request:IRequest
     protected response:IResponse
 
