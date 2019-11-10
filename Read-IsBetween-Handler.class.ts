@@ -39,7 +39,7 @@ export abstract class ReadIsBetweenHandler extends LambdaHandler {
 
 
 
-        private makeIsBetweenSyntax() {
+        protected makeIsBetweenSyntax() {
           return {
             TableName : `${ process.env.saasName }-${ process.env.stage }`,
             IndexName: this.request.indexName,

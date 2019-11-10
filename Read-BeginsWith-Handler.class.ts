@@ -39,7 +39,7 @@ export abstract class ReadBeginsWithHandler extends LambdaHandler {
 
 
 
-        private makeBeginsWithSyntax() {
+        protected makeBeginsWithSyntax() {
           return {
             TableName : `${ process.env.saasName }-${ process.env.stage }`,
             IndexName: this.request.indexName,

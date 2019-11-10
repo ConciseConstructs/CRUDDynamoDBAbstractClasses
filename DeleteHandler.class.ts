@@ -40,7 +40,7 @@ export abstract class DeleteHandler extends LambdaHandler {
 
 
 
-        private makeDeleteSyntax() {
+        protected makeDeleteSyntax() {
           return {
             TableName: `${ process.env.saasName }-${ process.env.stage }`,
             Key: {

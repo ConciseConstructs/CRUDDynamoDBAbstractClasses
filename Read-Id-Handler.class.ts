@@ -37,7 +37,7 @@ export abstract class ReadIdHandler extends LambdaHandler {
 
 
 
-        private makeGetIdSyntax() {
+        protected makeGetIdSyntax() {
           return {
             TableName: `${ process.env.saasName }-${ process.env.stage }`,
             Key: { table: `${ this.request.accountId }.${ process.env.model }`, id: this.request.id }

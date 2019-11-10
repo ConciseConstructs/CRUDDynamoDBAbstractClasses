@@ -38,7 +38,7 @@ export abstract class ReadIsLessOrEqualHandler extends LambdaHandler {
 
 
 
-        private makeIsLessThanOrEqual() {
+        protected makeIsLessThanOrEqual() {
           return {
             TableName : `${ process.env.saasName }-${ process.env.stage }`,
             IndexName: this.request.indexName,

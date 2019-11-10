@@ -40,7 +40,7 @@ export abstract class UpdateHandler extends LambdaHandler {
 
 
 
-        private makePutSyntax() {
+        protected makePutSyntax() {
           return {
             TableName: `${ process.env.saasName }-${ process.env.stage }`,
             Item: this.request.item

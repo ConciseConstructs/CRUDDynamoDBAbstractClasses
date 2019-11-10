@@ -42,7 +42,7 @@ export abstract class ReadAllHandler extends LambdaHandler {
 
 
 
-        private makeAllSyntax() {
+        protected makeAllSyntax() {
           this.syntax =  {
             TableName: `${ process.env.saasName }-${ process.env.stage }`,
             KeyConditionExpression: '#x = :y',
@@ -58,7 +58,7 @@ export abstract class ReadAllHandler extends LambdaHandler {
 
 
 
-        private addProjectionSyntax() {
+        protected addProjectionSyntax() {
           this.request.view = JSON.parse(this.request.view)
           this.syntax.ProjectionExpression = this.request.view.ProjectionExpression
           for (let [ placeholder, value ] of Object.entries(this.request.view.ExpressionAttributeNames) as any) {
@@ -69,7 +69,7 @@ export abstract class ReadAllHandler extends LambdaHandler {
 
 
 
-        private addLastEvaluatedKeySyntax() {
+        protected addLastEvaluatedKeySyntax() {
           this.syntax.ExclusiveStartKey = JSON.parse(this.request.lastEvaluatedKey)
         }
 

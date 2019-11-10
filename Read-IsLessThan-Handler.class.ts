@@ -38,7 +38,7 @@ export abstract class ReadIsLessThanHandler extends LambdaHandler {
 
 
 
-        private makeIsLessThanSyntax() {
+        protected makeIsLessThanSyntax() {
           return {
             TableName : `${ process.env.saasName }-${ process.env.stage }`,
             IndexName: this.request.indexName,

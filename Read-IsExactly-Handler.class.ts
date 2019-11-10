@@ -38,7 +38,7 @@ export abstract class ReadIsExactlyHandler extends LambdaHandler {
 
 
 
-        private makeIsExactlySyntax() {
+        protected makeIsExactlySyntax() {
           return {
             TableName : `${ process.env.saasName }-${ process.env.stage }`,
             IndexName: this.request.indexName,
