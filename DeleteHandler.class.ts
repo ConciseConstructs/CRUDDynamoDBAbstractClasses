@@ -12,6 +12,9 @@ import { Context, Callback } from 'aws-lambda'
 export abstract class DeleteHandler extends LambdaHandler {
     protected request:IRequest
     protected response:IResponse
+    protected record:any
+    protected unlinkRecordPromises:Promise<any>[]
+
 
 
     constructor(incomingRequest:IRequest, context:Context, callback:Callback) {
@@ -23,6 +26,7 @@ export abstract class DeleteHandler extends LambdaHandler {
         protected hookConstructorPre() {
           this.requiredInputs = ['accountId', 'id']
           this.needsToConnectToDatabase = true
+          this.needsToExecuteLambdas = true
         }
 
 
@@ -31,11 +35,81 @@ export abstract class DeleteHandler extends LambdaHandler {
 
 
 
-    protected performActions() {
-      this.db.delete(this.makeDeleteSyntax()).promise()
+    protected async performActions() {
+      await this.getRecordForExamination()
+      this.examineLinksForUnlinking()
+      Promise.all([
+        this.unlinkRecordPromises,
+        this.db.delete(this.makeDeleteSyntax()).promise()
+      ])
         .then(result => this.hasSucceeded(result))
         .catch(error => this.hasFailed(error))
     }
+
+
+
+
+        protected getRecordForExamination() {
+          return this.lambda.invoke({
+            FunctionName: `${ process.env.saasName }-${ this.capitalizeModelName() }-${ process.env.stage }-read-id`,
+            Payload: JSON.stringify({
+              accountId: this.request.accountId,
+              id: this.request.id
+            })
+          }).promise()
+            .then(result => this.onGetRecordSuccess(result))
+            .catch(error => this.onGetRecordFailure(error))
+        }
+
+
+
+
+            protected capitalizeModelName() {
+              return `${ (process.env.model as string)[0].toUpperCase() }${ (process.env.model as string).substr(1) }`
+            }
+
+
+
+
+            protected onGetRecordFailure(error) {  console.log('error-8fe713e6-48e5-44fd-b0ac-a3b8ebcaaf26', error)
+              this.hasFailed(error)
+            }
+
+
+
+
+            protected onGetRecordSuccess(result) {
+              let payload = JSON.parse(result.Payload)
+              this.record = JSON.parse(payload.body).details.Item
+            }
+
+
+
+
+        protected examineLinksForUnlinking() {
+          if (!this.record.links) return
+          this.unlinkRecordPromises = [ ]
+          for (let [ table, ids ] of Object.entries(this.record.links) as any) {
+            if (Object.keys(ids).length === 0) continue
+            else Object.keys(ids).forEach(id => this.unlinkRecordPromises.push(this.requestUnlinking(table, id)))
+          }
+        }
+
+
+
+
+            protected requestUnlinking(table, id) {
+              return this.lambda.invoke({
+                FunctionName: `${ process.env.saasName }-Database-${ process.env.stage }-unlink`,
+                Payload: JSON.stringify({
+                  accountId: this.request.accountId,
+                  table: table,
+                  id: id,
+                  foreignTable: process.env.model,
+                  foreignId: this.request.id
+                })
+              }).promise()
+            }
 
 
 
