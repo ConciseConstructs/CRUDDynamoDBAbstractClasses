@@ -51,7 +51,7 @@ export abstract class ReadIsExactlyHandler extends LambdaHandler {
                 ":table": `${ this.request.accountId }.${ process.env.model }`,
                 ":value": this.request.value
             }
-          }
+          } as any
           if (this.request.indexName) syntax.IndexName = this.request.indexName
           return syntax
         }
