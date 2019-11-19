@@ -7,12 +7,15 @@ import { Context, Callback } from 'aws-lambda'
     accountId:string
     value:any
     indexName?:string
+    view?:any
+    lastEvaluatedKey?:any
   }
 
 
 export abstract class ReadIsLessOrEqualHandler extends LambdaHandler {
     protected request:IRequest
     protected response:IResponse
+    protected syntax:any
 
 
     constructor(incomingRequest:IRequest, context:Context, callback:Callback) {
@@ -30,16 +33,18 @@ export abstract class ReadIsLessOrEqualHandler extends LambdaHandler {
 
 
     protected performActions() {
-      this.db.query(this.makeIsLessThanOrEqual()).promise()
-        .then(result => this.hasSucceeded(result))
-        .catch(error => this.hasFailed(error))
+      this.makeInitialSyntax()
+      if (this.request.indexName) this.addQueryByIndexSyntax()
+      if (this.request.view) this.addProjectionSyntax()
+      if (this.request.lastEvaluatedKey) this.addLastEvaluatedKeySyntax()
+      this.performQuery()
     }
 
 
 
 
-        protected makeIsLessThanOrEqual() {
-          let syntax = {
+        protected makeInitialSyntax() {
+          this.syntax = {
             TableName : `${ process.env.saasName }-${ process.env.stage }`,
             KeyConditionExpression: '#table = :table AND #index <= :value',
             ExpressionAttributeNames:{
@@ -50,9 +55,41 @@ export abstract class ReadIsLessOrEqualHandler extends LambdaHandler {
                 ":table": `${ this.request.accountId }.${ process.env.model }`,
                 ":value": this.request.value
             }
-          } as any
-          if (this.request.indexName) syntax.IndexName = this.request.indexName
-          return syntax
+          }
+        }
+
+
+
+
+        protected addQueryByIndexSyntax() {
+          this.syntax.IndexName = this.request.indexName
+        }
+
+
+
+
+        protected addProjectionSyntax() {
+          this.request.view = JSON.parse(this.request.view)
+          this.syntax.ProjectionExpression = this.request.view.ProjectionExpression
+          for (let [ placeholder, value ] of Object.entries(this.request.view.ExpressionAttributeNames) as any) {
+            this.syntax.ExpressionAttributeNames[placeholder] = value
+          }
+        }
+
+
+
+
+        protected addLastEvaluatedKeySyntax() {
+          this.syntax.ExclusiveStartKey = JSON.parse(this.request.lastEvaluatedKey)
+        }
+
+
+
+
+        protected performQuery() {
+          this.db.query(this.syntax).promise()
+            .then(result => this.hasSucceeded(result))
+            .catch(error => this.hasFailed(error))
         }
 
 } // End Main Handler Function -------

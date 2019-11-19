@@ -13,7 +13,7 @@ import { Context, Callback } from 'aws-lambda'
 export abstract class ReadAllHandler extends LambdaHandler {
     protected request:IRequest
     protected response:IResponse
-    private syntax:any
+    protected syntax:any
 
 
     constructor(incomingRequest:IRequest, context:Context, callback:Callback) {
@@ -31,18 +31,16 @@ export abstract class ReadAllHandler extends LambdaHandler {
 
 
     protected performActions() {
-      this.makeAllSyntax()
+      this.makeInitialSyntax()
       if (this.request.view) this.addProjectionSyntax()
       if (this.request.lastEvaluatedKey) this.addLastEvaluatedKeySyntax()
-      this.db.query(this.syntax).promise()
-        .then(result => this.hasSucceeded(result))
-        .catch(error => this.hasFailed(error))
+      this.performQuery()
     }
 
 
 
 
-        protected makeAllSyntax() {
+        protected makeInitialSyntax() {
           this.syntax =  {
             TableName: `${ process.env.saasName }-${ process.env.stage }`,
             KeyConditionExpression: '#x = :y',
@@ -71,6 +69,15 @@ export abstract class ReadAllHandler extends LambdaHandler {
 
         protected addLastEvaluatedKeySyntax() {
           this.syntax.ExclusiveStartKey = JSON.parse(this.request.lastEvaluatedKey)
+        }
+
+
+
+
+        protected performQuery() {
+          this.db.query(this.syntax).promise()
+            .then(result => this.hasSucceeded(result))
+            .catch(error => this.hasFailed(error))
         }
 
 } // End Main Handler Function -------
