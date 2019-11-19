@@ -5,9 +5,9 @@ import { Context, Callback } from 'aws-lambda'
 
   export interface IRequest {
     accountId:string
-    indexName:string
-    b:any
-    a:any
+    lowerBounds:any
+    upperBounds:any
+    indexName?:string
 }
 
 
@@ -23,7 +23,7 @@ export abstract class ReadIsBetweenHandler extends LambdaHandler {
 
 
         protected hookConstructorPre() {
-          this.requiredInputs = []
+          this.requiredInputs = ['accountId', 'lowerBounds', 'upperBounds']
           this.needsToConnectToDatabase = true
         }
 
@@ -40,20 +40,21 @@ export abstract class ReadIsBetweenHandler extends LambdaHandler {
 
 
         protected makeIsBetweenSyntax() {
-          return {
+          let syntax = {
             TableName : `${ process.env.saasName }-${ process.env.stage }`,
-            IndexName: this.request.indexName,
-            KeyConditionExpression: '#p = :x AND #i BETWEEN :a and :b',
+            KeyConditionExpression: '#table = :table AND #index BETWEEN :lowerBounds and :upperBounds',
             ExpressionAttributeNames:{
-                "#p": 'table',
-                "#i": this.request.indexName
+                "#table": 'table',
+                "#index": this.request.indexName || 'id'
             },
             ExpressionAttributeValues: {
-              ":x": `${ this.request.accountId }.${ process.env.model }`,
-              ":a": this.request.a,
-              ":b": this.request.b
+              ":table": `${ this.request.accountId }.${ process.env.model }`,
+              ":lowerBounds": this.request.lowerBounds,
+              ":upperBounds": this.request.upperBounds
             },
-          }
+          } as any
+          if (this.request.indexName) syntax.IndexName = this.request.indexName
+          return syntax
         }
 
 } // End Main Handler Function -------

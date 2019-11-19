@@ -5,14 +5,15 @@ import { Context, Callback } from 'aws-lambda'
 
   export interface IRequest {
     accountId:string
-    indexName:string
     value:any
+    indexName?:string
   }
 
 
 export abstract class ReadIsExactlyHandler extends LambdaHandler {
     protected request:IRequest
     protected response:IResponse
+    private syntax:any
 
 
     constructor(incomingRequest:IRequest, context:Context, callback:Callback) {
@@ -22,7 +23,7 @@ export abstract class ReadIsExactlyHandler extends LambdaHandler {
 
 
         protected hookConstructorPre() {
-          this.requiredInputs = []
+          this.requiredInputs = ['accountId', 'value']
           this.needsToConnectToDatabase = true
         }
 
@@ -38,20 +39,21 @@ export abstract class ReadIsExactlyHandler extends LambdaHandler {
 
 
 
-        protected makeIsExactlySyntax() {
-          return {
+        private makeIsExactlySyntax() {
+          let syntax = {
             TableName : `${ process.env.saasName }-${ process.env.stage }`,
-            IndexName: this.request.indexName,
-            KeyConditionExpression: '#p = :x AND #i = :v',
+            KeyConditionExpression: '#table = :table AND #index = :value',
             ExpressionAttributeNames:{
-                "#p": 'table',
-                "#i": this.request.indexName
+                "#table": 'table',
+                "#index": this.request.indexName || 'id'
             },
             ExpressionAttributeValues: {
-                ":x": `${ this.request.accountId }.${ process.env.model }`,
-                ":v": `${ process.env.indexA }:${ this.request.value }`
+                ":table": `${ this.request.accountId }.${ process.env.model }`,
+                ":value": this.request.value
             }
           }
+          if (this.request.indexName) syntax.IndexName = this.request.indexName
+          return syntax
         }
 
 } // End Main Handler Function -------

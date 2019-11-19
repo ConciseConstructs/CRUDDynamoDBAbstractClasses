@@ -5,8 +5,8 @@ import { Context, Callback } from 'aws-lambda'
 
   export interface IRequest {
     accountId:string
-    indexName:string
     value:any
+    indexName?:string
   }
 
 
@@ -22,7 +22,7 @@ export abstract class ReadIsGreaterThanHandler extends LambdaHandler {
 
 
         protected hookConstructorPre() {
-          this.requiredInputs = ['accountId', 'indexName', 'value',]
+          this.requiredInputs = ['accountId', 'value']
           this.needsToConnectToDatabase = true
         }
 
@@ -39,19 +39,20 @@ export abstract class ReadIsGreaterThanHandler extends LambdaHandler {
 
 
         protected makeIsGreaterThanSyntax() {
-          return {
-              TableName : `${ process.env.saasName }-${ process.env.stage }`,
-              IndexName: this.request.indexName,
-              KeyConditionExpression: '#p = :x AND #i > :v',
-              ExpressionAttributeNames:{
-                  "#p": 'table',
-                  "#i": this.request.indexName
-              },
-              ExpressionAttributeValues: {
-                  ":x": `${ this.request.accountId }.${ process.env.model }`,
-                  ":v": this.request.value
-              }
+          let syntax = {
+            TableName : `${ process.env.saasName }-${ process.env.stage }`,
+            KeyConditionExpression: '#table = :table AND #index > :value',
+            ExpressionAttributeNames:{
+                "#table": 'table',
+                "#index": this.request.indexName || 'id'
+            },
+            ExpressionAttributeValues: {
+                ":table": `${ this.request.accountId }.${ process.env.model }`,
+                ":value": this.request.value
             }
+          } as any
+          if (this.request.indexName) syntax.IndexName = this.request.indexName
+          return syntax
         }
 
 } // End Main Handler Function -------
