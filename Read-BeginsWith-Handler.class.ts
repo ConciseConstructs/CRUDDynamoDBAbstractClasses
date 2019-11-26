@@ -56,9 +56,16 @@ export abstract class ReadBeginsWithHandler extends LambdaHandler {
                 ":table": `${ this.request.accountId }.${ process.env.model }`,
             }
           }
-          if (this.request.indexName) this.syntax.ExpressionAttributeValues[":value"] = `${ process.env[this.request.indexName] }:${ this.request.value }`
+          if (this.needsToConcatIndexNameWithValue) this.syntax.ExpressionAttributeValues[":value"] = `${ process.env[this.request.indexName] }:${ this.request.value }`
           else this.syntax.ExpressionAttributeValues[":value"] = this.request.value
         }
+
+
+
+
+            protected get needsToConcatIndexNameWithValue() {
+              return (this.request.indexName && this.request.indexName !== 'createdAt' && this.request.indexName !== 'updatedAt')
+            }
 
 
 

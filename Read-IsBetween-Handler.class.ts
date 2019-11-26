@@ -56,7 +56,7 @@ export abstract class ReadIsBetweenHandler extends LambdaHandler {
               ":table": `${ this.request.accountId }.${ process.env.model }`,
             },
           }
-          if (this.request.indexName) {
+          if (this.needsToConcatIndexNameWithValue) {
             this.syntax.ExpressionAttributeValues[":lowerBounds"] = `${ process.env[this.request.indexName] }:${ this.request.lowerBounds }`
             this.syntax.ExpressionAttributeValues[":upperBounds"] = `${ process.env[this.request.indexName] }:${ this.request.upperBounds }`
           }
@@ -65,6 +65,13 @@ export abstract class ReadIsBetweenHandler extends LambdaHandler {
             this.syntax.ExpressionAttributeValues[":upperBounds"] = this.request.upperBounds
           }
         }
+
+
+
+
+            protected get needsToConcatIndexNameWithValue() {
+              return (this.request.indexName && this.request.indexName !== 'createdAt' && this.request.indexName !== 'updatedAt')
+            }
 
 
 
