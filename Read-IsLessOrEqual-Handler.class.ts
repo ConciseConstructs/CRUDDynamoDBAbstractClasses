@@ -53,9 +53,10 @@ export abstract class ReadIsLessOrEqualHandler extends LambdaHandler {
             },
             ExpressionAttributeValues: {
                 ":table": `${ this.request.accountId }.${ process.env.model }`,
-                ":value": this.request.value
             }
           }
+          if (this.request.indexName) this.syntax.ExpressionAttributeValues[":value"] = `${ process.env[this.request.indexName] }:${ this.request.value }`
+          else this.syntax.ExpressionAttributeValues[":value"] = this.request.value
         }
 
 

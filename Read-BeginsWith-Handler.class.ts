@@ -54,9 +54,10 @@ export abstract class ReadBeginsWithHandler extends LambdaHandler {
             },
             ExpressionAttributeValues: {
                 ":table": `${ this.request.accountId }.${ process.env.model }`,
-                ":value": this.request.value
             }
           }
+          if (this.request.indexName) this.syntax.ExpressionAttributeValues[":value"] = `${ process.env[this.request.indexName] }:${ this.request.value }`
+          else this.syntax.ExpressionAttributeValues[":value"] = this.request.value
         }
 
 
@@ -68,7 +69,7 @@ export abstract class ReadBeginsWithHandler extends LambdaHandler {
 
 
 
-        
+
         protected addProjectionSyntax() {
           this.request.view = JSON.parse(this.request.view)
           this.syntax.ProjectionExpression = this.request.view.ProjectionExpression

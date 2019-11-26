@@ -54,9 +54,15 @@ export abstract class ReadIsBetweenHandler extends LambdaHandler {
             },
             ExpressionAttributeValues: {
               ":table": `${ this.request.accountId }.${ process.env.model }`,
-              ":lowerBounds": this.request.lowerBounds,
-              ":upperBounds": this.request.upperBounds
             },
+          }
+          if (this.request.indexName) {
+            this.syntax.ExpressionAttributeValues[":lowerBounds"] = `${ process.env[this.request.indexName] }:${ this.request.lowerBounds }`
+            this.syntax.ExpressionAttributeValues[":upperBounds"] = `${ process.env[this.request.indexName] }:${ this.request.upperBounds }`
+          }
+          else {
+            this.syntax.ExpressionAttributeValues[":lowerBounds"] = this.request.lowerBounds
+            this.syntax.ExpressionAttributeValues[":upperBounds"] = this.request.upperBounds
           }
         }
 
