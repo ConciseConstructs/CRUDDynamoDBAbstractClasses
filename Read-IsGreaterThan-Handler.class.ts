@@ -70,7 +70,9 @@ export abstract class ReadIsGreaterThanHandler extends LambdaHandler {
 
 
         protected addQueryByIndexSyntax() {
-          this.syntax.IndexName = this.request.indexName
+          for (let [ dbIndexName, friendlyName ] of Object.entries(process.env.indexes)) {
+            if (this.request.indexName === friendlyName) this.syntax.IndexName = dbIndexName
+          }
         }
 
 
