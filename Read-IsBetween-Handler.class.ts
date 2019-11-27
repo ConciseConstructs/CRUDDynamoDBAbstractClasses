@@ -50,15 +50,15 @@ export abstract class ReadIsBetweenHandler extends LambdaHandler {
             KeyConditionExpression: '#table = :table AND #index BETWEEN :lowerBounds and :upperBounds',
             ExpressionAttributeNames:{
                 "#table": 'table',
-                "#index": this.request.indexName || 'id'
+                "#index": 'id'
             },
             ExpressionAttributeValues: {
               ":table": `${ this.request.accountId }.${ process.env.model }`,
             },
           }
           if (this.needsToConcatIndexNameWithValue) {
-            this.syntax.ExpressionAttributeValues[":lowerBounds"] = `${ process.env[this.request.indexName] }:${ this.request.lowerBounds }`
-            this.syntax.ExpressionAttributeValues[":upperBounds"] = `${ process.env[this.request.indexName] }:${ this.request.upperBounds }`
+            this.syntax.ExpressionAttributeValues[":lowerBounds"] = `${ this.request.indexName }:${ this.request.lowerBounds }`
+            this.syntax.ExpressionAttributeValues[":upperBounds"] = `${ this.request.indexName }:${ this.request.upperBounds }`
           }
           else {
             this.syntax.ExpressionAttributeValues[":lowerBounds"] = this.request.lowerBounds
@@ -76,9 +76,14 @@ export abstract class ReadIsBetweenHandler extends LambdaHandler {
 
 
 
-        protected addQueryByIndexSyntax() {
-          this.syntax.IndexName = this.request.indexName
-        }
+            protected addQueryByIndexSyntax() {
+              for (let [ propertyName, value ] of Object.entries(process.env)) {
+                if (this.request.indexName === value) {
+                  this.syntax.IndexName = propertyName
+                  this.syntax.ExpressionAttributeNames["#index"] = propertyName
+                }
+              }
+            }
 
 
 

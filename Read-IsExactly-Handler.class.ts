@@ -49,13 +49,13 @@ export abstract class ReadIsExactlyHandler extends LambdaHandler {
             KeyConditionExpression: '#table = :table AND #index = :value',
             ExpressionAttributeNames:{
                 "#table": 'table',
-                "#index": this.request.indexName || 'id'
+                "#index": 'id'
             },
             ExpressionAttributeValues: {
                 ":table": `${ this.request.accountId }.${ process.env.model }`,
             }
           }
-          if (this.needsToConcatIndexNameWithValue) this.syntax.ExpressionAttributeValues[":value"] = `${ process.env[this.request.indexName] }:${ this.request.value }`
+          if (this.needsToConcatIndexNameWithValue) this.syntax.ExpressionAttributeValues[":value"] = `${ this.request.indexName }:${ this.request.value }`
           else this.syntax.ExpressionAttributeValues[":value"] = this.request.value
         }
 
@@ -69,9 +69,15 @@ export abstract class ReadIsExactlyHandler extends LambdaHandler {
 
 
 
-        protected addQueryByIndexSyntax() {
-          this.syntax.IndexName = this.request.indexName
-        }
+            protected addQueryByIndexSyntax() {
+              for (let [ propertyName, value ] of Object.entries(process.env)) {
+                if (this.request.indexName === value) {
+                  this.syntax.IndexName = propertyName
+                  this.syntax.ExpressionAttributeNames["#index"] = propertyName
+                }
+              }
+            }
+
 
 
 
