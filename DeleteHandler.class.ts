@@ -51,7 +51,7 @@ export abstract class DeleteHandler extends LambdaHandler {
 
         protected getRecordForExamination() {
           return this.lambda.invoke({
-            FunctionName: `${ process.env.saasName }-${ this.capitalizeModelName() }-${ process.env.stage }-read-id`,
+            FunctionName: `${ process.env.saasName }-${ this.capitalizeModelName() }-${ process.env.stage }-read-isExactly`,
             Payload: JSON.stringify({
               accountId: this.request.accountId,
               id: this.request.id
@@ -80,7 +80,7 @@ export abstract class DeleteHandler extends LambdaHandler {
 
             protected onGetRecordSuccess(result) {
               let payload = JSON.parse(result.Payload)
-              this.record = JSON.parse(payload.body).details.Item
+              this.record = JSON.parse(payload.body).details.Items[0]
             }
 
 
