@@ -54,7 +54,7 @@ export abstract class DeleteHandler extends LambdaHandler {
             FunctionName: `${ process.env.saasName }-${ this.capitalizeModelName() }-${ process.env.stage }-read-isExactly`,
             Payload: JSON.stringify({
               accountId: this.request.accountId,
-              id: this.request.id
+              value: this.request.id
             })
           }).promise()
             .then(result => this.onGetRecordSuccess(result))
