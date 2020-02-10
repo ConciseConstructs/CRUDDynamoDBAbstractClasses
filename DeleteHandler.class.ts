@@ -51,7 +51,7 @@ export abstract class DeleteHandler extends LambdaHandler {
 
         protected getRecordForExamination() {
           return this.lambda.invoke({
-            FunctionName: `${ process.env.saasName }-${ this.capitalizeModelName() }-${ process.env.stage }-read-isExactly`,
+            FunctionName: `${ process.env.saasName }-${ process.env.model }-${ process.env.stage }-read-isExactly`,
             Payload: JSON.stringify({
               accountId: this.request.accountId,
               value: this.request.id
@@ -60,13 +60,6 @@ export abstract class DeleteHandler extends LambdaHandler {
             .then(result => this.onGetRecordSuccess(result))
             .catch(error => this.onGetRecordFailure(error))
         }
-
-
-
-
-            protected capitalizeModelName() {
-              return `${ (process.env.model as string)[0].toUpperCase() }${ (process.env.model as string).substr(1) }`
-            }
 
 
 
