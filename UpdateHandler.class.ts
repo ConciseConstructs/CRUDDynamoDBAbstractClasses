@@ -69,7 +69,7 @@ export abstract class UpdateHandler extends LambdaHandler {
                     silo: `${ process.env.saasName }-${ process.env.stage }`,
                     table: params.table,
                     id: params.id,
-                    foreignTable: `${ process.env.modelName }`,
+                    foreignTable: `${ process.env.model }`,
                     foreignId: this.request.item.id,
                     accountId: `${ this.request.item.table.split('.')[0] }`,
                     link: true
@@ -105,7 +105,7 @@ export abstract class UpdateHandler extends LambdaHandler {
                     silo: `${ process.env.saasName }-${ process.env.stage }`,
                     table: params.table,
                     id: params.id,
-                    foreignTable: `${ process.env.modelName }`,
+                    foreignTable: `${ process.env.model }`,
                     foreignId: this.request.item.id,
                     accountId: `${ this.request.item.table.split('.')[0] }`,
                     link: true
