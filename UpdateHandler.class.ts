@@ -80,11 +80,11 @@ export abstract class UpdateHandler extends LambdaHandler {
 
 
         private linkNewRecords() {
-          if (!this.request.item.links.link) return
-          for (let [ table, ids ] of Object.entries(this.request.item.links.link)) {
+          if (!this.request.item.links._link) return
+          for (let [ table, ids ] of Object.entries(this.request.item.links._link)) {
             Object.keys(ids).forEach(id => this.link({ table: table, id: id }))
           }
-          delete this.request.item.links.link
+          delete this.request.item.links._link
         }
 
 
