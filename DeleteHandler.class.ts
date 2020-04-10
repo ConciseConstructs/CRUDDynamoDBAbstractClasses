@@ -93,8 +93,9 @@ export abstract class DeleteHandler extends LambdaHandler {
 
             protected requestUnlinking(table, id) {
               return this.lambda.invoke({
-                FunctionName: `Database-${ process.env.stage }-unlink`,
+                FunctionName: `Database-${ process.env.stage }-links-unlink`,
                 Payload: JSON.stringify({
+                  silo: `${ process.env.saasName }-${ process.env.stage }`,
                   accountId: this.request.accountId,
                   table: table,
                   id: id,
