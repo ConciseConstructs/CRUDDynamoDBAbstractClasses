@@ -82,7 +82,7 @@ export abstract class DeleteHandler extends LambdaHandler {
         protected examineLinksForUnlinking() {
           if (!this.record.links) return
           this.unlinkRecordPromises = [ ]
-          for (let [ table, ids ] of Object.entries(this.record.links) as any) {
+          for (let [ table, ids ] of Object.entries(this.record.links as any) as any) {
             if (Object.keys(ids).length === 0) continue
             else Object.keys(ids).forEach(id => this.unlinkRecordPromises.push(this.requestUnlinking(table, id)))
           }
