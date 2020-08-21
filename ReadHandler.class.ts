@@ -49,14 +49,14 @@ export abstract class ReadHandler extends LambdaHandler {
         protected makeInitialSyntax() {
           if (!this.request.condition) this.makeAllSyntax()
           else switch (this.request.condition) {
-            case "all": this.makeAllSyntax()
-            case "beginsWith": this.makeBeginsWithSyntax()
-            case "isBetween": this.makeIsBetweenSyntax()
-            case "isExactly": this.makeIsExactlySyntax()
-            case "isGreaterOrEqual": this.makeIsGreaterOrEqualSyntax()
-            case "isGreaterThan": this.makeIsGreaterThanSyntax()
-            case "isLessOrEqual": this.makeIsLessOrEqualSyntax()
-            case "isLessThan": this.makeIsLessThanSyntax()
+            case "all": this.makeAllSyntax(); break
+            case "beginsWith": this.makeBeginsWithSyntax(); break
+            case "isBetween": this.makeIsBetweenSyntax(); break
+            case "isExactly": this.makeIsExactlySyntax(); break
+            case "isGreaterOrEqual": this.makeIsGreaterOrEqualSyntax(); break
+            case "isGreaterThan": this.makeIsGreaterThanSyntax(); break
+            case "isLessOrEqual": this.makeIsLessOrEqualSyntax(); break
+            case "isLessThan": this.makeIsLessThanSyntax(); break
           }
         }
 
