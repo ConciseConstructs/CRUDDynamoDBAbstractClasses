@@ -51,9 +51,10 @@ export abstract class DeleteHandler extends LambdaHandler {
 
         protected getRecordForExamination() {
           return this.lambda.invoke({
-            FunctionName: `${ process.env.saasName }-${ process.env.model }-${ process.env.stage }-read-isExactly`,
+            FunctionName: `${ process.env.saasName }-${ process.env.model }-${ process.env.stage }-read`,
             Payload: JSON.stringify({
               accountId: this.request.accountId,
+              condition: 'isExactly',
               value: this.request.id
             })
           }).promise()
